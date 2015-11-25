@@ -24,3 +24,18 @@ function connecttoMysql()
         exit(0);
     }
 }
+
+function connecttoMongodb()
+{
+    try
+    {
+       $mongodb = new MongoClient();
+       return $mongodb;
+    }
+    catch (Exception $e)
+    {
+       echo $e->getMessage();
+       exit(0);
+    }
+ 
+}

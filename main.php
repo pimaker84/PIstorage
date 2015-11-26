@@ -1,23 +1,10 @@
 <?php require_once 'functions/functions.php'; ?>
-<!DOCTYPE html>
+
 <!--
 To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
-
-<?php
-if(isset($_POST['upload'])){
-    $destination = __DIR__ . '/upload/';
-    if($_FILES['file_name']['error'] == 0){
-        move_uploaded_file($_FILES['file_name']['tmp_name'], $destination . $_FILES['file_name']['name']);
-    }
-    print_r($_FILES);
-}
-
-
-
-?>
 
 <html>
     <head>
@@ -33,37 +20,65 @@ if(isset($_POST['upload'])){
         <title></title>
     </head>
     <body>
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <a href="#" class="navbar-brand">PIstorage</a>
-                </div>
-                
-                <div>
-                    <ul class="nav navbar-nav">
-                        <li><a href="main.php?tab=storage">STORAGE</a></li>
-                        <li><a href="#">ADMIN</a></li>
-                        <li><a href="#">SETTINGS</a></li>
-                        
-                    </ul>
-                </div>
-            </div>
-        </nav>
+ <!-- Static navbar -->
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">PIstorage</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="main.php?tab=storage">Files</a></li>
+            <li><a href="#about">Admin</a></li>
+            <li><a href="#contact">Contact</a></li>
+      
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="">Logout</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+ 
+
+        
         
 <?php
+
+//chdir( "./storage" ); //change dir to storage
+
+/*
+$dir = getcwd();
+//$dir = "../storage";
+$con = scandirectory($dir); // this will pass entire directory
+
+echo json_encode(array(
+	"name" => "files",
+	"type" => "folder",
+	"path" => $dir,
+	"items" => $con
+));*/
+
+
+
+
+// query paramiter
+
  if(isset($_GET['tab'])){
         
         $page = $_GET['tab'];
         
         if($page == 'storage'){
            
-            include 'tabs/create_dir.php';
-            
-            
-            
-            
-        }
-        
+            include 'tabs/storage_management.php';
+                          
+        }     
        
     }
  

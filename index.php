@@ -1,11 +1,33 @@
+<?php session_start(); ?>
 <?php require_once 'functions/functions.php'; ?>
+
+
 <!DOCTYPE html>
 <!--
 To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
+<?php
+//check for login 
+if(isset($_POST['username'], $_POST['password'])) {
 
+    
+    if(login($_POST['username'], $_POST['password']))
+    {
+        //Add username to session
+        $_SESSION['username'] = $_POST['username'];
+        
+        //redirect to main
+        header("Location: main.php");   
+    }
+    else 
+    {
+        echo "Wrong username or password";
+    }
+}
+
+?>
 
 
 <html>

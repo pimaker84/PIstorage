@@ -10,7 +10,7 @@
 //connection details for mysql
 $host = 'localhost';
 $username = 'root';
-$password = '';
-$dbname = 'pi_serverdb';
+$password = 'toor';
+$dbname = 'pi_db';
     
 ?>

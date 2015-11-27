@@ -47,6 +47,54 @@ function connecttoMongodb()
 }
 
 
+/**
+ * Function to login for the admin
+ * Function return true if the admin
+ * is successfully identified using provided
+ * username and password, Otherwise return false.
+ *
+ * @param $username
+ * @param $password
+ * @return true if successful login, otherwise false.
+ */
+function login($username, $password)
+{
+    $mysqli = connecttoMysql();
+    
+   $username = sanitise($username, 40); 
+   $password = sanitise($password, 40);
+    //$password = sha1($password);
+    $result = false; 
+    
+    //check if there is an error connecting to database
+    if($mysqli->connect_errno)
+        echo "Failed to connect to MySql:-> " .  $mysqli->connect_error;
+
+    /* Create and execute statement to get the result set/Statement Object */
+    if($stmt = $mysqli->query("SELECT username, password FROM users WHERE username = '$username' AND password = '$password'"))
+    {
+        //iterator to match the results
+        while($row = $stmt->fetch_array(MYSQLI_ASSOC))
+        {
+            if($row['username'] == $username && $row['password'] == $password)
+            {
+                $result = true;
+                break;
+            }
+        }
+    }
+    else
+    {
+        echo "Error -> " . $mysqli->error;
+        $result = false; 
+    }
+    
+    $mysqli->close();
+    
+    return $result;
+}
+
+
 function scandirectory($dir)
 {
     // create an array for directory content
@@ -125,4 +173,32 @@ function savetomongo($file)
    
    $mongocon->close();
   
+}
+
+
+
+/**
+* Function to Sanitize or clean to avoid SQL Injections
+* Even after this cleaning and house-keeping, Parameter
+* binding is used with MySqLI Prepare statements to ensure
+* there will be no SQL Injections. 
+* 
+* @param $string - string to be cleaned
+* @param $max - maximum length of string
+*/
+function sanitise($string, $max)
+{
+   //preserved only needed characters
+   $string = substr($string, 0, $max);
+
+   //strip html                     
+   $string = strip_tags($string);
+
+   //convert entities special characters
+   $string = htmlspecialchars($string);
+
+   //remove white spaces
+   $string = trim(rtrim(ltrim($string)));
+
+   return $string;
 }

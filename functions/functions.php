@@ -6,6 +6,7 @@
  * and open the template in the editor.
  */
 require_once('db_connections/connect.php');
+require_once 'defines.php';
 
 /* 
  * Function that handels connection to a MySQL database
@@ -94,7 +95,7 @@ function login($username, $password)
     return $result;
 }
 
-
+// function that scans given directory and returns all files and folders contained within directory
 function scandirectory($dir)
 {
     // create an array for directory content
@@ -107,20 +108,20 @@ function scandirectory($dir)
                 continue;
             }
             
-            if(is_dir($dir . '/' . $f)){
+            if(is_dir($dir . DS . $f)){
                 $dir_content[] = array(
                     "name" => $f,
                     "type" => "folder",
-                    "path" => $dir . '/' .$f,
-                    "items" => scandirectory($dir . '/' . $f)   
+                    "path" => $dir . DS .$f,
+                    "items" => scandirectory($dir . DS . $f)   
                 );
             }
             else {
                 $dir_content[] = array(
                     "name" => $f,
                     "type" => "file",
-                    "path" => $dir . '/' . $f,
-                    "size" => filesize($dir . '/' . $f)
+                    "path" => $dir . DS . $f,
+                    "size" => filesize($dir . DS . $f)
                 );
             }
             
@@ -201,4 +202,15 @@ function sanitise($string, $max)
    $string = trim(rtrim(ltrim($string)));
 
    return $string;
+}
+
+/**
+* 
+* 
+* 
+* @param 
+*/
+function dirnavigator()
+{
+    
 }

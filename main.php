@@ -49,7 +49,7 @@ if(!isset($_SESSION['username']))
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="main.php?tab=storage">Files</a></li>
-            <li><a href="#about">Admin</a></li>
+            <li><a href="main.php?tab=layout">Admin</a></li>
             <li><a href="#contact">Contact</a></li>
       
           </ul>
@@ -65,37 +65,20 @@ if(!isset($_SESSION['username']))
         
 <?php
 
-
-
-//chdir( "./storage" ); //change dir to storage
-
-/*
-$dir = getcwd();
-//$dir = "../storage";
-$con = scandirectory($dir); // this will pass entire directory
-
-echo json_encode(array(
-	"name" => "files",
-	"type" => "folder",
-	"path" => $dir,
-	"items" => $con
-));*/
-
-
-
-
-// query paramiter
-
  if(isset($_GET['tab'])){
-        
+       
         $page = $_GET['tab'];
         
         if($page == 'storage'){
            
             include 'tabs/storage_management.php';
                           
-        }     
-       
+        }  
+        if($page == 'layout'){
+            include 'tabs/layout.php';
+        }
+    }else{
+        include 'tabs/storage_content.php';
     }
  
  ?>

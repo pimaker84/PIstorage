@@ -1,26 +1,20 @@
 <?php
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-//$cwd = getcwd();
-            
-            // change directory to the storage folder
-            
-            
-            
 if(isset($_POST['dir_name'])){
     
-    $dir = $_POST['dir_name'];
-   
-    // if the name is set, then create a directory
-    mkdir(getcwd() . "/" . $dir);
+   if($_POST['dir_name']!==''){
+       $name = $_POST['dir_name'];
+       $lenght = strlen($name);
+       $newdir = sanitise($name, $lenght);
+       
+       chdir("storage");
+       create_dir($newdir);
+       
+   }else{
+       echo "Please enter the directory name";
+   }
+    
 }
-
-
-           
 ?>
 
 <div class="col-lg-12">

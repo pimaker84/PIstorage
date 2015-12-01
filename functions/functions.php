@@ -200,17 +200,21 @@ function sanitise($string, $max)
 
    //remove white spaces
    $string = trim(rtrim(ltrim($string)));
-
+   
+   //remove white spaces inside the string
+   $string = str_replace(' ', '', $string);
+   
    return $string;
 }
 
 /**
-* 
-* 
-* 
-* @param 
+* function that creates new directory
+* it allow to create new directory inside directory
+* new directory name is passed as a paramiter 
+* @param $newdir
 */
-function dirnavigator()
+function create_dir($newdir)
 {
+    mkdir(getcwd() . "/" . $newdir, 0755);
     
 }

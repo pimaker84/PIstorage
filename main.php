@@ -5,7 +5,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
-<?php
+<?php /*
 session_start();
 
 //check if ther exist in the session, otherwise redirct to index page
@@ -17,7 +17,7 @@ if(!isset($_SESSION['username']))
     
     //redirect to limit access to this resource
     header("Location: index.php");
-}
+}*/
 ?>
 
 <html>

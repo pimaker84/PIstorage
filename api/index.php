@@ -6,4 +6,9 @@
  * and open the template in the editor.
  */
 
-//ref: http://php.net/manual/en/set.mongodb.php
+require_once ('../functions/functions.php');
+
+
+$huj = "kutas hujowy";
+$kut = sanitise($huj, 12);
+echo $kut;

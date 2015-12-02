@@ -5,8 +5,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-require_once('db_connections/connect.php');
-require_once 'defines.php';
+require_once('connect.php');
+require_once ('defines.php');
 
 /* 
  * Function that handels connection to a MySQL database

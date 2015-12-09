@@ -1,8 +1,26 @@
-#sidenav{
-    background-color: #ccc;
+
+
+ul
+{
+list-style-type: none;
+}
+
+
+#header{
+    width: 100%;
+    height: 50px;
+    background-color: #afd9ee;
+    margin: 0 auto;
+    
+}
+#sidemenu{
+    background-color: #9acfea;
     padding: 0;
 }
 
-.box{
- border: 1px solid black;   
+#sidemenu h1{
+    color: #67b168;
+    text-align: center;
+    margin: 10px 0px;
+    
 }

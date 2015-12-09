@@ -1,397 +1,130 @@
-$(function(){
-
-	var filemanager = $('.filemanager'),
-		breadcrumbs = $('.breadcrumbs'),
-		fileList = filemanager.find('.data');
-
-	// Start by fetching the file data from scan.php with an AJAX request
-
-	$.get('functions.php', function(data) {
-
-		var response = [data],
-			currentPath = '',
-			breadcrumbsUrls = [];
-
-		var folders = [],
-			files = [];
-
-		// This event listener monitors changes on the URL. We use it to
-		// capture back/forward navigation in the browser.
-
-		$(window).on('hashchange', function(){
-
-			goto(window.location.hash);
-
-			// We are triggering the event. This will execute 
-			// this function on page load, so that we show the correct folder:
-
-		}).trigger('hashchange');
-
-
-		// Hiding and showing the search box
-
-		filemanager.find('.search').click(function(){
-
-			var search = $(this);
-
-			search.find('span').hide();
-			search.find('input[type=search]').show().focus();
-
-		});
-
-
-		// Listening for keyboard input on the search field.
-		// We are using the "input" event which detects cut and paste
-		// in addition to keyboard input.
-
-		filemanager.find('input').on('input', function(e){
-
-			folders = [];
-			files = [];
-
-			var value = this.value.trim();
-
-			if(value.length) {
-
-				filemanager.addClass('searching');
-
-				// Update the hash on every key stroke
-				window.location.hash = 'search=' + value.trim();
-
+jQuery(document).ready(function($){
+ 		$('.pi-tree-view').piTreeView({
+ 			apiUrl:'api/ajax/filetree.php', //required 
+  			apiKey:'123', //required if API check for key -- if not just set it as '' (i.e. blank string)
+  			fileCallback:function(el){ // optional
+  				console.log($(el).html());
+ 			},
+  			folderClosedIcon:'<i class="glyphicon glyphicon-folder-close"></i>', // optional any HTML or blank string to remove
+ 			folderOpenIcon:'<i class="glyphicon glyphicon-folder-open"></i>', // optional any HTML or blank string to remove
+ 			fileIcon:'<i class="glyphicon glyphicon-open-file"></i>' // optional any HTML or blank string to remove
+  		});
+                
+                $('#login-dialog').dialog({
+                autoOpen: false
+                });
+  });
+  
+  (function($){
+	$.piTreeView=function(el,options){
+		var _options=$.extend({
+			apiUrl:null,
+			apiKey:null,
+			folderClosedIcon:'<i class="glyphicon glyphicon-folder-close"></i>',
+			folderOpenIcon:'<i class="glyphicon glyphicon-folder-open"></i>',
+			fileIcon:'<i class="glyphicon glyphicon-open-file"></i>',
+			fileCallback:null
+		},options);
+		var self=this;
+		self.$el=$(el);
+		self.el=el;
+		self.$el.data('piTreeView',self);
+		self._html='';
+		self.bytesToSize=function(bytes){
+			var sizes=['Bytes','KB','MB','GB','TB'];
+			if(bytes==0){
+				return '0 Bytes';
 			}
-
-			else {
-
-				filemanager.removeClass('searching');
-				window.location.hash = encodeURIComponent(currentPath);
-
-			}
-
-		}).on('keyup', function(e){
-
-			// Clicking 'ESC' button triggers focusout and cancels the search
-
-			var search = $(this);
-
-			if(e.keyCode == 27) {
-
-				search.trigger('focusout');
-
-			}
-
-		}).focusout(function(e){
-
-			// Cancel the search
-
-			var search = $(this);
-
-			if(!search.val().trim().length) {
-
-				window.location.hash = encodeURIComponent(currentPath);
-				search.hide();
-				search.parent().find('span').show();
-
-			}
-
-		});
-
-
-		// Clicking on folders
-
-		fileList.on('click', 'li.folders', function(e){
-			e.preventDefault();
-
-			var nextDir = $(this).find('a.folders').attr('href');
-
-			if(filemanager.hasClass('searching')) {
-
-				// Building the breadcrumbs
-
-				breadcrumbsUrls = generateBreadcrumbs(nextDir);
-
-				filemanager.removeClass('searching');
-				filemanager.find('input[type=search]').val('').hide();
-				filemanager.find('span').show();
-			}
-			else {
-				breadcrumbsUrls.push(nextDir);
-			}
-
-			window.location.hash = encodeURIComponent(nextDir);
-			currentPath = nextDir;
-		});
-
-
-		// Clicking on breadcrumbs
-
-		breadcrumbs.on('click', 'a', function(e){
-			e.preventDefault();
-
-			var index = breadcrumbs.find('a').index($(this)),
-				nextDir = breadcrumbsUrls[index];
-
-			breadcrumbsUrls.length = Number(index);
-
-			window.location.hash = encodeURIComponent(nextDir);
-
-		});
-
-
-		// Navigates to the given hash (path)
-
-		function goto(hash) {
-
-			hash = decodeURIComponent(hash).slice(1).split('=');
-
-			if (hash.length) {
-				var rendered = '';
-
-				// if hash has search in it
-
-				if (hash[0] === 'search') {
-
-					filemanager.addClass('searching');
-					rendered = searchData(response, hash[1].toLowerCase());
-
-					if (rendered.length) {
-						currentPath = hash[0];
-						render(rendered);
+			var i=parseInt(Math.floor(Math.log(bytes)/Math.log(1024)));
+			return Math.round(bytes/Math.pow(1024,i),2)+' '+sizes[i];
+		};
+		self.buildHtmlTree=function(data,level){
+			self._html='<ul class="pi-tree-item"'+(level>0?' style="display:none;"':'')+'>';
+			if(data.length>0){
+				$.each(data,function(k,item){
+					self._html+='<li>';
+					self._html+=(item.type=='folder'?_options.folderClosedIcon:_options.fileIcon)+' ';
+					self._html+='<a href="#" data-path="'+item.path+'" data-type="'+item.type+'" data-size="'+self.bytesToSize(parseInt(item.size))+'">'+item.name+'</a>';
+					if(item.type=='folder'){
+						level++;
+						self._html+=self.buildHtmlTree(item.items,level);
 					}
-					else {
-						render(rendered);
-					}
-
-				}
-
-				// if hash is some path
-
-				else if (hash[0].trim().length) {
-
-					rendered = searchByPath(hash[0]);
-
-					if (rendered.length) {
-
-						currentPath = hash[0];
-						breadcrumbsUrls = generateBreadcrumbs(hash[0]);
-						render(rendered);
-
-					}
-					else {
-						currentPath = hash[0];
-						breadcrumbsUrls = generateBreadcrumbs(hash[0]);
-						render(rendered);
-					}
-
-				}
-
-				// if there is no hash
-
-				else {
-					currentPath = data.path;
-					breadcrumbsUrls.push(data.path);
-					render(searchByPath(data.path));
-				}
+					self._html+='</li>';
+				});
 			}
-		}
-
-		// Splits a file path and turns it into clickable breadcrumbs
-
-		function generateBreadcrumbs(nextDir){
-			var path = nextDir.split('/').slice(0);
-			for(var i=1;i<path.length;i++){
-				path[i] = path[i-1]+ '/' +path[i];
-			}
-			return path;
-		}
-
-
-		// Locates a file by path
-
-		function searchByPath(dir) {
-			var path = dir.split('/'),
-				demo = response,
-				flag = 0;
-
-			for(var i=0;i<path.length;i++){
-				for(var j=0;j<demo.length;j++){
-					if(demo[j].name === path[i]){
-						flag = 1;
-						demo = demo[j].items;
-						break;
+			self._html+='</ul>';
+			return self._html;
+		};
+		self.buildView=function(data){
+			data=self.sortData(data);
+			self.buildHtmlTree(data,0);
+			self.$el.html(self._html);
+			$.each(self.$el.find('a[data-type=folder]'),function(){
+				$(this).click(function(e){
+					e.preventDefault();
+					if($(this).next().is(':visible')){
+						$(this).prev().replaceWith(_options.folderClosedIcon);
+						$(this).next().hide();
+					}else{
+						$(this).prev().replaceWith(_options.folderOpenIcon);
+						$(this).next().show();
 					}
-				}
-			}
-
-			demo = flag ? demo : [];
-			return demo;
-		}
-
-
-		// Recursively search through the file tree
-
-		function searchData(data, searchTerms) {
-
-			data.forEach(function(d){
-				if(d.type === 'folder') {
-
-					searchData(d.items,searchTerms);
-
-					if(d.name.toLowerCase().match(searchTerms)) {
-						folders.push(d);
-					}
-				}
-				else if(d.type === 'file') {
-					if(d.name.toLowerCase().match(searchTerms)) {
-						files.push(d);
-					}
-				}
+				});
 			});
-			return {folders: folders, files: files};
-		}
-
-
-		// Render the HTML for the file manager
-
-		function render(data) {
-
-			var scannedFolders = [],
-				scannedFiles = [];
-
-			if(Array.isArray(data)) {
-
-				data.forEach(function (d) {
-
-					if (d.type === 'folder') {
-						scannedFolders.push(d);
+			$.each(self.$el.find('a[data-type=file]'),function(){
+				$(this).click(function(e){
+					e.preventDefault();
+					if(_options.fileCallback!=null){
+						_options.fileCallback(e.target);
 					}
-					else if (d.type === 'file') {
-						scannedFiles.push(d);
-					}
-
 				});
-
+			});
+		};
+		self.sortData=function(data){
+			data=data.sort(function(a,b){
+				var a1=a.name,b1=b.name;
+				if(a1==b1){
+					return 0;
+				}
+				return a1>b1?1:-1;
+			});
+			data=data.sort(function(a,b){
+				var a1=a.type,b1=b.type;
+				if(a1==b1){
+					return 0;
+				}
+				return b1=='folder'?1:-1;
+			});
+			return data;
+		};
+		self.loadData=function(){
+			if(_options.apiUrl==null){
+				alert('Parameter `apiUrl` is required.');
+			}else{
+				if(_options.apiKey==null){
+					alert('Parameter `apiKey` is required.');
+				}else{
+					$.ajax({
+						url:_options.apiUrl,
+						type:'post',
+						data:{apiKey:_options.apiKey},
+						success:function(resp){
+							if(resp.status=='ok'){
+								self.buildView(resp.files);
+							}
+						}
+					});
+				}
 			}
-			else if(typeof data === 'object') {
-
-				scannedFolders = data.folders;
-				scannedFiles = data.files;
-
-			}
-
-
-			// Empty the old result and make the new one
-
-			fileList.empty().hide();
-
-			if(!scannedFolders.length && !scannedFiles.length) {
-				filemanager.find('.nothingfound').show();
-			}
-			else {
-				filemanager.find('.nothingfound').hide();
-			}
-
-			if(scannedFolders.length) {
-
-				scannedFolders.forEach(function(f) {
-
-					var itemsLength = f.items.length,
-						name = escapeHTML(f.name),
-						icon = '<span class="icon folder"></span>';
-
-					if(itemsLength) {
-						icon = '<span class="icon folder full"></span>';
-					}
-
-					if(itemsLength == 1) {
-						itemsLength += ' item';
-					}
-					else if(itemsLength > 1) {
-						itemsLength += ' items';
-					}
-					else {
-						itemsLength = 'Empty';
-					}
-
-					var folder = $('<li class="folders"><a href="'+ f.path +'" title="'+ f.path +'" class="folders">'+icon+'<span class="name">' + name + '</span> <span class="details">' + itemsLength + '</span></a></li>');
-					folder.appendTo(fileList);
-				});
-
-			}
-
-			if(scannedFiles.length) {
-
-				scannedFiles.forEach(function(f) {
-
-					var fileSize = bytesToSize(f.size),
-						name = escapeHTML(f.name),
-						fileType = name.split('.'),
-						icon = '<span class="icon file"></span>';
-
-					fileType = fileType[fileType.length-1];
-
-					icon = '<span class="icon file f-'+fileType+'">.'+fileType+'</span>';
-
-					var file = $('<li class="files"><a href="'+ f.path+'" title="'+ f.path +'" class="files">'+icon+'<span class="name">'+ name +'</span> <span class="details">'+fileSize+'</span></a></li>');
-					file.appendTo(fileList);
-				});
-
-			}
-
-
-			// Generate the breadcrumbs
-
-			var url = '';
-
-			if(filemanager.hasClass('searching')){
-
-				url = '<span>Search results: </span>';
-				fileList.removeClass('animated');
-
-			}
-			else {
-
-				fileList.addClass('animated');
-
-				breadcrumbsUrls.forEach(function (u, i) {
-
-					var name = u.split('/');
-
-					if (i !== breadcrumbsUrls.length - 1) {
-						url += '<a href="'+u+'"><span class="folderName">' + name[name.length-1] + '</span></a> <span class="arrow">→</span> ';
-					}
-					else {
-						url += '<span class="folderName">' + name[name.length-1] + '</span>';
-					}
-
-				});
-
-			}
-
-			breadcrumbs.text('').append(url);
-
-
-			// Show the generated elements
-
-			fileList.animate({'display':'inline-block'});
-
-		}
-
-
-		// This function escapes special html characters in names
-
-		function escapeHTML(text) {
-			return text.replace(/\&/g,'&amp;').replace(/\</g,'&lt;').replace(/\>/g,'&gt;');
-		}
-
-
-		// Convert file sizes from bytes to human readable units
-
-		function bytesToSize(bytes) {
-			var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-			if (bytes == 0) return '0 Bytes';
-			var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-			return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
-		}
-
-	});
-});
+		};
+		self.init=function(){
+			self.loadData();
+		};
+		self.init();
+	};
+	$.fn.piTreeView=function(dataApiUrl){
+		return this.each(function(){
+			(new $.piTreeView(this,dataApiUrl));
+		});
+	};
+})(jQuery);

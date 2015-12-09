@@ -5,6 +5,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
+
 <?php /*
 session_start();
 
@@ -18,6 +19,7 @@ if(!isset($_SESSION['username']))
     //redirect to limit access to this resource
     header("Location: index.php");
 }*/
+
 ?>
 
 <html>
@@ -30,7 +32,9 @@ if(!isset($_SESSION['username']))
         
         <!-- Bootstrap core CSS -->
         <link href="styles/bootstrap.min.css" rel="stylesheet" media="screen">
-        <link rel="stylesheet" href="styles/main.css"
+        <link rel="stylesheet" href="styles/main.css">
+        <script src="scripts/main.js"></script>
+        <script src="scripts/indexscript.js"></script>
         <title></title>
     </head>
     <body>
@@ -54,13 +58,12 @@ if(!isset($_SESSION['username']))
       
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="">Logout</a></li>
+              <li><a href="logout.php">Logout</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
- 
-
+ <div class="pi-tree-view"></div>
         
         
 <?php
